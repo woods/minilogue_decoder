@@ -33,8 +33,10 @@ class ProgramData < BinData::Record
   uint8 :eg_decay                         # byte 39
   uint8 :eg_sustain                       # byte 40
   uint8 :eg_release                       # byte 41
+  uint8 :lfo_rate                         # byte 42
+  uint8 :lfo_int                          # byte 43
   
-  skip length: 10                         # byte 42
+  skip length: 8                          # byte 44
 
   bit2 :vco1_wave                         # byte 52 + 0 bits
   bit2 :vco1_octave                       # byte 52 + 2 bits
@@ -54,9 +56,17 @@ class ProgramData < BinData::Record
   bit2 :filter_velocity                   # byte 56 + 4 bits
   bit2 :skip5                             # byte 56 + 6 bits
 
-  skip length: 16                         # byte 57
+  skip length: 2                          # byte 57
 
-  bit5 :skip6                             # byte 73 + 0 bits
+  bit2 :lfo_eg_mod                        # byte 59 + 0 bits
+  bit2 :lfo_target                        # byte 59 + 2 bits
+  bit4 :skip6                             # byte 59 + 4 bits
+  bit6 :skip7                             # byte 60 + 0 bits
+  bit2 :lfo_wave                          # byte 60 + 6 bits
+
+  skip length: 12                         # byte 61
+
+  bit5 :skip8                             # byte 73 + 0 bits
   bit3 :octave                            # byte 73 + 5 bits
 
   skip length: 26                         # byte 74
@@ -236,6 +246,38 @@ class Program
     normalize_positive_knob(@data.eg_release)
   end
 
+  # LFO
+
+  def lfo_wave
+    normalize_wave(@data.lfo_wave)
+  end
+
+  def lfo_eg_mod
+    case @data.lfo_eg_mod
+      when 0 then :off
+      when 1 then :rate
+      when 2 then :int
+      else nil
+    end
+  end
+
+  def lfo_rate
+    normalize_positive_knob(@data.lfo_rate)
+  end
+
+  def lfo_int
+    normalize_positive_knob(@data.lfo_int)
+  end
+
+  def lfo_target
+    case @data.lfo_target
+      when 0 then :cutoff
+      when 1 then :shape
+      when 2 then :pitch
+      else nil
+    end
+  end
+
   private
 
   def normalize_wave(value)
@@ -328,6 +370,12 @@ class ProgramFormatter
     EG Decay   = #{eg_decay}
     EG Sustain = #{eg_sustain}
     EG Release = #{eg_release}
+
+    LFO Wave = #{@program.lfo_wave}
+    LFO EG Mod = #{@program.lfo_eg_mod}
+    LFO Rate = #{lfo_rate}
+    LFO Int = #{lfo_int}
+    LFO Target = #{@program.lfo_target}
 
     EOF
   end
@@ -430,6 +478,14 @@ class ProgramFormatter
 
   def eg_release
     format_percent(@program.eg_release)
+  end
+
+  def lfo_rate
+    format_percent(@program.lfo_rate)
+  end
+
+  def lfo_int
+    format_percent(@program.lfo_int)
   end
 
   private
