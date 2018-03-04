@@ -5,7 +5,9 @@ require 'bindata'
 # A class that knows how to parse the raw values from a single Korg Minilogue 
 # program data file. No conversions are done.
 #
-class ProgramData < BinData::Record       # File position (in bytes):
+class ProgramData < BinData::Record
+  endian :little
+                                          # File position (in bytes):
   string :header, read_length: 4          # 0
   string :program_name, read_length: 16   # 4
   uint8 :vco1_pitch                       # 20
@@ -17,8 +19,11 @@ class ProgramData < BinData::Record       # File position (in bytes):
   uint8 :mixer_vco1                       # 26
   uint8 :mixer_vco2                       # 27
   uint8 :mixer_noise                      # 28
+  uint8 :filter_cutoff                    # 29
+  uint8 :filter_resonance                 # 30
+  uint8 :filter_eg_int                    # 31
 
-  skip length: 23                         # 29
+  skip length: 20                         # 32
   
   bit2 :vco1_wave                         # 52 + 0 bits
   bit2 :vco1_octave                       # 52 + 2 bits
@@ -32,15 +37,20 @@ class ProgramData < BinData::Record       # File position (in bytes):
   bit6 :skip3                             # 55 + 0 bits
   bit1 :vco2_ring                         # 55 + 6 bits
   bit1 :vco2_sync                         # 55 + 7 bits
+  bit1 :skip4                             # 56 + 0 bits
+  bit1 :filter_pole                       # 56 + 1 bit
+  bit2 :filter_key_track                  # 56 + 2 bits
+  bit2 :filter_velocity                   # 56 + 4 bits
+  bit2 :skip5                             # 56 + 6 bits
 
-  skip length: 17                         # 56
+  skip length: 16                         # 57
 
-  bit5 :skip4                             # 73 + 0 bits
+  bit5 :skip6                             # 73 + 0 bits
   bit3 :octave                            # 73 + 5 bits
 
   skip length: 26                         # 74
 
-  uint16le :tempo                         # 100
+  uint16 :tempo                           # 100
 
 end
 
@@ -139,6 +149,46 @@ class Program
     normalize_positive_knob(@data.mixer_noise)
   end
 
+  # Filter
+
+  def filter_cutoff
+    normalize_positive_knob(@data.filter_cutoff)
+  end
+
+  def filter_resonance
+    normalize_positive_knob(@data.filter_resonance)
+  end
+
+  def filter_eg_int
+    normalize_balanced_knob(@data.filter_eg_int)
+  end
+
+  def filter_pole
+    case @data.filter_pole
+      when 0 then :two_pole
+      when 1 then :four_pole
+      else nil
+    end
+  end
+
+  def filter_key_track
+    case @data.filter_key_track
+      when 0 then 0.0
+      when 1 then 0.5
+      when 2 then 1.0
+      else nil
+    end
+  end
+
+  def filter_velocity
+    case @data.filter_velocity
+      when 0 then 0.0
+      when 1 then 0.5
+      when 2 then 1.0
+      else nil
+    end
+  end
+
   private
 
   def normalize_wave(value)
@@ -146,6 +196,7 @@ class Program
       when 0 then :square
       when 1 then :triangle
       when 2 then :saw
+      else nil
     end
   end
 
@@ -214,6 +265,13 @@ class ProgramFormatter
     Mixer for VCO2 = #{mixer_vco2}
     Mixer for Noise = #{mixer_noise}
 
+    Filter Cutoff = #{filter_cutoff}
+    Filter Resonance = #{filter_resonance}
+    Filter EG Int = #{filter_eg_int}
+    Filter Pole = #{filter_pole}
+    Filter Key Track = #{filter_key_track}
+    Filter Velocity = #{filter_velocity}
+
     EOF
   end
 
@@ -255,6 +313,34 @@ class ProgramFormatter
 
   def mixer_noise
     format_percent(@program.mixer_noise)
+  end
+
+  def filter_cutoff
+    format_percent(@program.filter_cutoff)
+  end
+
+  def filter_resonance
+    format_percent(@program.filter_resonance)
+  end
+
+  def filter_eg_int
+    format_percent(@program.filter_eg_int)
+  end
+
+  def filter_pole
+    case @program.filter_pole
+      when :two_pole  then '2-Pole'
+      when :four_pole then '4-Pole'
+      else nil
+    end
+  end
+
+  def filter_key_track
+    format_percent(@program.filter_key_track)
+  end
+
+  def filter_velocity
+    format_percent(@program.filter_velocity)
   end
 
   private
