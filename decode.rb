@@ -23,8 +23,19 @@ class ProgramData < BinData::Record
   uint8 :filter_resonance                 # byte 30
   uint8 :filter_eg_int                    # byte 31
 
-  skip length: 20                         # byte 32
+  skip length: 2                          # byte 32
+
+  uint8 :amp_eg_attack                    # byte 34
+  uint8 :amp_eg_decay                     # byte 35
+  uint8 :amp_eg_sustain                   # byte 36
+  uint8 :amp_eg_release                   # byte 37
+  uint8 :eg_attack                        # byte 38
+  uint8 :eg_decay                         # byte 39
+  uint8 :eg_sustain                       # byte 40
+  uint8 :eg_release                       # byte 41
   
+  skip length: 10                         # byte 42
+
   bit2 :vco1_wave                         # byte 52 + 0 bits
   bit2 :vco1_octave                       # byte 52 + 2 bits
   bit4 :skip1                             # byte 52 + 4 bits
@@ -189,6 +200,42 @@ class Program
     end
   end
 
+  # AMP EG
+
+  def amp_eg_attack
+    normalize_positive_knob(@data.amp_eg_attack)
+  end
+
+  def amp_eg_decay
+    normalize_positive_knob(@data.amp_eg_decay)
+  end
+
+  def amp_eg_sustain
+    normalize_positive_knob(@data.amp_eg_sustain)
+  end
+
+  def amp_eg_release
+    normalize_positive_knob(@data.amp_eg_release)
+  end
+
+  # EG
+
+  def eg_attack
+    normalize_positive_knob(@data.eg_attack)
+  end
+
+  def eg_decay
+    normalize_positive_knob(@data.eg_decay)
+  end
+
+  def eg_sustain
+    normalize_positive_knob(@data.eg_sustain)
+  end
+
+  def eg_release
+    normalize_positive_knob(@data.eg_release)
+  end
+
   private
 
   def normalize_wave(value)
@@ -272,6 +319,16 @@ class ProgramFormatter
     Filter Key Track = #{filter_key_track}
     Filter Velocity = #{filter_velocity}
 
+    AMP EG Attack  = #{amp_eg_attack}
+    AMP EG Decay   = #{amp_eg_decay}
+    AMP EG Sustain = #{amp_eg_sustain}
+    AMP EG Release = #{amp_eg_release}
+
+    EG Attack  = #{eg_attack}
+    EG Decay   = #{eg_decay}
+    EG Sustain = #{eg_sustain}
+    EG Release = #{eg_release}
+
     EOF
   end
 
@@ -341,6 +398,38 @@ class ProgramFormatter
 
   def filter_velocity
     format_percent(@program.filter_velocity)
+  end
+
+  def amp_eg_attack
+    format_percent(@program.amp_eg_attack)
+  end
+
+  def amp_eg_decay
+    format_percent(@program.amp_eg_decay)
+  end
+
+  def amp_eg_sustain
+    format_percent(@program.amp_eg_sustain)
+  end
+
+  def amp_eg_release
+    format_percent(@program.amp_eg_release)
+  end
+
+  def eg_attack
+    format_percent(@program.eg_attack)
+  end
+
+  def eg_decay
+    format_percent(@program.eg_decay)
+  end
+
+  def eg_sustain
+    format_percent(@program.eg_sustain)
+  end
+
+  def eg_release
+    format_percent(@program.eg_release)
   end
 
   private
