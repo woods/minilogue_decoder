@@ -7,50 +7,50 @@ require 'bindata'
 #
 class ProgramData < BinData::Record
   endian :little
-                                          # File position (in bytes):
-  string :header, read_length: 4          # 0
-  string :program_name, read_length: 16   # 4
-  uint8 :vco1_pitch                       # 20
-  uint8 :vco1_shape                       # 21
-  uint8 :vco2_pitch                       # 22
-  uint8 :vco2_shape                       # 23
-  uint8 :vco2_cross_mod_depth             # 24
-  uint8 :vco2_pitch_eg_int                # 25
-  uint8 :mixer_vco1                       # 26
-  uint8 :mixer_vco2                       # 27
-  uint8 :mixer_noise                      # 28
-  uint8 :filter_cutoff                    # 29
-  uint8 :filter_resonance                 # 30
-  uint8 :filter_eg_int                    # 31
+                                          # File position:
+  string :header, read_length: 4          # byte 0
+  string :program_name, read_length: 16   # byte 4
+  uint8 :vco1_pitch                       # byte 20
+  uint8 :vco1_shape                       # byte 21
+  uint8 :vco2_pitch                       # byte 22
+  uint8 :vco2_shape                       # byte 23
+  uint8 :vco2_cross_mod_depth             # byte 24
+  uint8 :vco2_pitch_eg_int                # byte 25
+  uint8 :mixer_vco1                       # byte 26
+  uint8 :mixer_vco2                       # byte 27
+  uint8 :mixer_noise                      # byte 28
+  uint8 :filter_cutoff                    # byte 29
+  uint8 :filter_resonance                 # byte 30
+  uint8 :filter_eg_int                    # byte 31
 
-  skip length: 20                         # 32
+  skip length: 20                         # byte 32
   
-  bit2 :vco1_wave                         # 52 + 0 bits
-  bit2 :vco1_octave                       # 52 + 2 bits
-  bit4 :skip1                             # 52 + 4 bits
-  bit2 :vco2_wave                         # 53 + 0 bits
-  bit2 :vco2_octave                       # 53 + 2 bits
-  bit4 :skip2                             # 53 + 4 bits
+  bit2 :vco1_wave                         # byte 52 + 0 bits
+  bit2 :vco1_octave                       # byte 52 + 2 bits
+  bit4 :skip1                             # byte 52 + 4 bits
+  bit2 :vco2_wave                         # byte 53 + 0 bits
+  bit2 :vco2_octave                       # byte 53 + 2 bits
+  bit4 :skip2                             # byte 53 + 4 bits
   
-  skip length: 1                          # 54
+  skip length: 1                          # byte 54
 
-  bit6 :skip3                             # 55 + 0 bits
-  bit1 :vco2_ring                         # 55 + 6 bits
-  bit1 :vco2_sync                         # 55 + 7 bits
-  bit1 :skip4                             # 56 + 0 bits
-  bit1 :filter_pole                       # 56 + 1 bit
-  bit2 :filter_key_track                  # 56 + 2 bits
-  bit2 :filter_velocity                   # 56 + 4 bits
-  bit2 :skip5                             # 56 + 6 bits
+  bit6 :skip3                             # byte 55 + 0 bits
+  bit1 :vco2_ring                         # byte 55 + 6 bits
+  bit1 :vco2_sync                         # byte 55 + 7 bits
+  bit1 :skip4                             # byte 56 + 0 bits
+  bit1 :filter_pole                       # byte 56 + 1 bit
+  bit2 :filter_key_track                  # byte 56 + 2 bits
+  bit2 :filter_velocity                   # byte 56 + 4 bits
+  bit2 :skip5                             # byte 56 + 6 bits
 
-  skip length: 16                         # 57
+  skip length: 16                         # byte 57
 
-  bit5 :skip6                             # 73 + 0 bits
-  bit3 :octave                            # 73 + 5 bits
+  bit5 :skip6                             # byte 73 + 0 bits
+  bit3 :octave                            # byte 73 + 5 bits
 
-  skip length: 26                         # 74
+  skip length: 26                         # byte 74
 
-  uint16 :tempo                           # 100
+  uint16 :tempo                           # byte 100
 
 end
 
