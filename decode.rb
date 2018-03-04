@@ -36,8 +36,11 @@ class ProgramData < BinData::Record
   uint8 :lfo_rate                         # byte 42
   uint8 :lfo_int                          # byte 43
   
-  skip length: 8                          # byte 44
+  skip length: 5                          # byte 44
 
+  uint8 :delay_hi_pass_cutoff             # byte 49
+  uint8 :delay_time                       # byte 50
+  uint8 :delay_feedback                   # byte 51
   bit2 :vco1_wave                         # byte 52 + 0 bits
   bit2 :vco1_octave                       # byte 52 + 2 bits
   bit4 :skip1                             # byte 52 + 4 bits
@@ -61,7 +64,8 @@ class ProgramData < BinData::Record
   bit2 :lfo_eg_mod                        # byte 59 + 0 bits
   bit2 :lfo_target                        # byte 59 + 2 bits
   bit4 :skip6                             # byte 59 + 4 bits
-  bit6 :skip7                             # byte 60 + 0 bits
+  bit2 :delay_output_routing              # byte 60 + 0 bits
+  bit4 :skip7                             # byte 60 + 2 bits
   bit2 :lfo_wave                          # byte 60 + 6 bits
 
   skip length: 12                         # byte 61
@@ -278,6 +282,29 @@ class Program
     end
   end
 
+  # Delay
+
+  def delay_hi_pass_cutoff
+    normalize_positive_knob(@data.delay_hi_pass_cutoff)
+  end
+
+  def delay_time
+    normalize_positive_knob(@data.delay_time)
+  end
+
+  def delay_feedback
+    normalize_positive_knob(@data.delay_feedback)
+  end
+
+  def delay_output_routing
+    case @data.delay_output_routing
+      when 0 then :bypass
+      when 1 then :pre_filter
+      when 2 then :post_filter
+      else nil
+    end
+  end
+
   private
 
   def normalize_wave(value)
@@ -376,6 +403,11 @@ class ProgramFormatter
     LFO Rate = #{lfo_rate}
     LFO Int = #{lfo_int}
     LFO Target = #{@program.lfo_target}
+
+    Delay Hi Pass Cutoff = #{delay_hi_pass_cutoff}
+    Delay Time = #{delay_time}
+    Delay Feedback = #{delay_feedback}
+    Delay Output Routing = #{@program.delay_output_routing}
 
     EOF
   end
@@ -486,6 +518,18 @@ class ProgramFormatter
 
   def lfo_int
     format_percent(@program.lfo_int)
+  end
+
+  def delay_hi_pass_cutoff
+    format_percent(@program.delay_hi_pass_cutoff)
+  end
+
+  def delay_time
+    format_percent(@program.delay_time)
+  end
+
+  def delay_feedback
+    format_percent(@program.delay_feedback)
   end
 
   private
