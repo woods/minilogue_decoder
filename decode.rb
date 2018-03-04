@@ -22,9 +22,7 @@ class ProgramData < BinData::Record
   uint8 :filter_cutoff                    # byte 29
   uint8 :filter_resonance                 # byte 30
   uint8 :filter_eg_int                    # byte 31
-
   skip length: 2                          # byte 32
-
   uint8 :amp_eg_attack                    # byte 34
   uint8 :amp_eg_decay                     # byte 35
   uint8 :amp_eg_sustain                   # byte 36
@@ -35,9 +33,7 @@ class ProgramData < BinData::Record
   uint8 :eg_release                       # byte 41
   uint8 :lfo_rate                         # byte 42
   uint8 :lfo_int                          # byte 43
-  
   skip length: 5                          # byte 44
-
   uint8 :delay_hi_pass_cutoff             # byte 49
   uint8 :delay_time                       # byte 50
   uint8 :delay_feedback                   # byte 51
@@ -47,9 +43,7 @@ class ProgramData < BinData::Record
   bit2 :vco2_wave                         # byte 53 + 0 bits
   bit2 :vco2_octave                       # byte 53 + 2 bits
   bit4 :skip2                             # byte 53 + 4 bits
-  
   skip length: 1                          # byte 54
-
   bit6 :skip3                             # byte 55 + 0 bits
   bit1 :vco2_ring                         # byte 55 + 6 bits
   bit1 :vco2_sync                         # byte 55 + 7 bits
@@ -58,25 +52,23 @@ class ProgramData < BinData::Record
   bit2 :filter_key_track                  # byte 56 + 2 bits
   bit2 :filter_velocity                   # byte 56 + 4 bits
   bit2 :skip5                             # byte 56 + 6 bits
-
   skip length: 2                          # byte 57
-
   bit2 :lfo_eg_mod                        # byte 59 + 0 bits
   bit2 :lfo_target                        # byte 59 + 2 bits
   bit4 :skip6                             # byte 59 + 4 bits
   bit2 :delay_output_routing              # byte 60 + 0 bits
   bit4 :skip7                             # byte 60 + 2 bits
   bit2 :lfo_wave                          # byte 60 + 6 bits
-
-  skip length: 12                         # byte 61
-
-  bit5 :skip8                             # byte 73 + 0 bits
+  skip length: 3                          # byte 61
+  bit5 :skip8                             # byte 64 + 0 bits
+  bit3 :voice_mode                        # byte 64 + 5 bits
+  skip length: 5                          # byte 65
+  uint8 :voice_mode_depth                 # byte 70
+  skip length: 2                          # byte 71
+  bit5 :skip9                             # byte 73 + 0 bits
   bit3 :octave                            # byte 73 + 5 bits
-
   skip length: 26                         # byte 74
-
   uint16 :tempo                           # byte 100
-
 end
 
 # A class that knows how to convert the raw program data values into more
@@ -305,6 +297,26 @@ class Program
     end
   end
 
+  # Voice Mode
+
+  def voice_mode_depth
+    normalize_positive_knob(@data.voice_mode_depth)
+  end
+
+  def voice_mode
+    case @data.voice_mode
+      when 0 then :poly
+      when 1 then :duo
+      when 2 then :unison
+      when 3 then :mono
+      when 4 then :chord
+      when 5 then :delay
+      when 6 then :arp
+      when 7 then :side_chain
+      else nil
+    end
+  end
+
   private
 
   def normalize_wave(value)
@@ -409,6 +421,9 @@ class ProgramFormatter
     Delay Feedback = #{delay_feedback}
     Delay Output Routing = #{@program.delay_output_routing}
 
+    Voice Mode Depth = #{voice_mode_depth}
+    Voice Mode = #{@program.voice_mode}
+    
     EOF
   end
 
@@ -530,6 +545,10 @@ class ProgramFormatter
 
   def delay_feedback
     format_percent(@program.delay_feedback)
+  end
+
+  def voice_mode_depth
+    format_percent(@program.voice_mode_depth)
   end
 
   private
